@@ -32,7 +32,7 @@ st.markdown("""
 
 # 2. API Key Setup
 API_KEY = st.secrets["GOOGLE_API_KEY"] 
-genai.configure(api_key="AIzaSyDsXhRYQzTYswkWOX1Fr-y3MTpCIU9gtp4")
+
 
 # --- 🧠 SESSION STATE ---
 if "roadmap_text" not in st.session_state:
