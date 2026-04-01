@@ -31,7 +31,7 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 # 2. API Key Setup
-API_KEY = "YOUR_API_KEY_HERE" 
+API_KEY = st.secrets["GOOGLE_API_KEY"] 
 genai.configure(api_key="AIzaSyDsXhRYQzTYswkWOX1Fr-y3MTpCIU9gtp4")
 
 # --- 🧠 SESSION STATE ---
