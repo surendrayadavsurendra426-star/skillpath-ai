@@ -4,72 +4,55 @@ import google.generativeai as genai
 # --- 1. PAGE CONFIG ---
 st.set_page_config(page_title="SkillPath AI - Surendra Yadav", page_icon="🚀")
 
-# --- 2. API SETUP (Safe Connection) ---
-if "MY_API_KEY" in st.secrets:
+# --- 2. API SETUP & DEBUG ---
+# Hum check kar rahe hain ki key mil rahi hai ya nahi
+if "MY_API_KEY" not in st.secrets:
+    st.error("❌ Error: API Key 'Secrets' mein nahi mili! Dashboard par ja kar MY_API_KEY add karein.")
+    st.stop()
+else:
     try:
-        genai.configure(api_key=st.secrets["MY_API_KEY"])
-        # Hamara naya model (Sabse latest)
+        api_val = st.secrets["MY_API_KEY"]
+        genai.configure(api_key=api_val)
+        # Latest model use kar rahe hain
         model = genai.GenerativeModel('gemini-1.5-flash')
     except Exception as e:
-        st.error(f"Setup Error: {e}")
+        st.error(f"❌ Setup Error: {e}")
         st.stop()
-else:
-    st.error("Secrets mein API Key (MY_API_KEY) nahi mili!")
-    st.stop()
 
-# --- 3. SIDEBAR (Aapka Naam) ---
+# --- 3. SIDEBAR ---
 with st.sidebar:
     st.title("🎯 SkillPath AI")
-    st.success("Built by **Surendra Yadav**") # Aapka naam yahan hai
-    st.info("Personal AI Mentor")
+    st.success("Built by **Surendra Yadav**")
     if st.button("Reset App 🔄"):
         st.rerun()
 
 # --- 4. MAIN UI ---
 st.title("🚀 SkillPath: AI Roadmap Generator")
-user_goal = st.text_input("Aap kya banna chahte hain?", placeholder="e.g., Video Creator, Web Dev")
+user_goal = st.text_input("Aap kya banna chahte hain?", placeholder="e.g., Video Creator")
 
-# GENERATE BUTTON (Jo aapne manga tha)
 if st.button("Generate My Roadmap ✨"):
     if user_goal:
-        with st.spinner(f"Surendra's AI '{user_goal}' ke liye best roadmap bana raha hai..."):
+        with st.spinner("AI Generating..."):
             try:
-                # AI se roadmap mangwana
-                prompt = f"Create a short and professional 3-step roadmap to become a {user_goal}. Provide title and 4 bullet points for each step."
-                response = model.generate_content(prompt)
-                roadmap_text = response.text
+                # Simple prompt to avoid complex errors
+                response = model.generate_content(f"Give a 3-step roadmap to become {user_goal}")
                 
-                # Title dikhana
-                st.markdown(f"### 📍 Roadmap for: {user_goal}")
+                st.markdown(f"### 📍 Roadmap: {user_goal}")
+                st.write(response.text)
+                
+                # VIDEO LINK
                 st.divider()
+                q = user_goal.replace(" ", "+")
+                st.info(f"👉 [Click here to watch {user_goal} Tutorials](https://www.youtube.com/results?search_query={q}+course)")
                 
-                # Roadmap Text
-                st.markdown(roadmap_text)
-                
-                # VIDEO LINK (Jo aapne manga tha)
-                st.divider()
-                st.subheader("📺 Learning Resources")
-                search_query = user_goal.replace(" ", "+")
-                video_url = f"https://www.youtube.com/results?search_query={search_query}+full+course"
-                st.info(f"👉 [Click here to watch {user_goal} Tutorials on YouTube]({video_url})")
-                
-                # DOWNLOAD BUTTON
-                st.download_button(
-                    label="Download Roadmap 📄",
-                    data=roadmap_text,
-                    file_name=f"{user_goal}_roadmap.txt",
-                    mime="text/plain"
-                )
-                
+                # DOWNLOAD
+                st.download_button("Download Roadmap 📄", response.text, file_name="roadmap.txt")
                 st.balloons()
                 
             except Exception as e:
-                # Error handle karne ke liye naya tarika
-                st.error("AI thoda busy hai ya model update ho raha hai.")
-                st.info("Kripya ek baar 'Reboot' karein aur check karein API key valid hai ya nahi.")
+                st.error(f"❌ AI Response Fail: {str(e)}")
+                st.info("Tip: Check karein ki aapki API Key 'Google AI Studio' se valid hai.")
     else:
         st.warning("Pehle apna goal likhein!")
 
-# Footer
-st.markdown("---")
 st.caption("© 2026 SkillPath | Developed by Surendra Yadav")
