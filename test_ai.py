@@ -25,8 +25,8 @@ if st.button("Generate My Roadmap ✨"):
     if user_goal:
         with st.spinner("AI Models check ho rahe hain..."):
             try:
-                # Sabse pehle 'gemini-1.5-flash' try karein
-                model = genai.GenerativeModel('gemini-1.5-flash')
+                # Sabse pehle "models/gemini-2.5-flash" try karein
+                model = genai.GenerativeModel("models/gemini-2.5-flash")
                 response = model.generate_content(f"Create a 3-step roadmap to become {user_goal}")
                 
                 st.markdown(f"### 📍 Roadmap for: {user_goal}")
