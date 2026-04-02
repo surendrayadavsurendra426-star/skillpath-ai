@@ -3,60 +3,74 @@ import google.generativeai as genai
 
 # --- 1. PAGE CONFIG ---
 st.set_page_config(
-    page_title="SkillPath AI - By Surendra",
+    page_title="SkillPath AI - Surendra Yadav",
     page_icon="🚀",
     layout="wide"
 )
 
-# --- 2. SAFE API KEY LOADING ---
-# Is section mein error nahi aayega, ye check karega ki key maujood hai ya nahi
+# --- 2. API KEY SETUP ---
 if "MY_API_KEY" not in st.secrets:
-    st.error("⚠️ API Key nahi mili! Streamlit Cloud ki 'Settings > Secrets' mein 'MY_API_KEY' add karein.")
+    st.error("Secrets mein 'MY_API_KEY' missing hai!")
     st.stop()
-else:
-    try:
-        api_key = st.secrets["MY_API_KEY"]
-        genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-pro')
-    except Exception as e:
-        st.error(f"❌ AI Setup mein error: {e}")
-        st.stop()
 
-# --- 3. SIDEBAR (Aapka Naam Yahan Hai) ---
+genai.configure(api_key=st.secrets["MY_API_KEY"])
+model = genai.GenerativeModel('gemini-pro')
+
+# --- 3. SIDEBAR (Updated Name) ---
 with st.sidebar:
     st.title("🎯 SkillPath AI")
     st.markdown("---")
     st.markdown("### 👨‍💻 Developer")
-    st.success("Built by **Surendra**") # Aapka naam hamesha dikhega
+    st.success("Built by **Surendra Yadav**") 
     st.info("Aapka personal AI career guide.")
-    
     if st.button("Reset App 🔄"):
         st.rerun()
 
 # --- 4. MAIN INTERFACE ---
 st.title("🚀 SkillPath: Personalized Roadmap")
-st.write("Apna goal likhein aur AI aapka rasta taiyar karega.")
+user_goal = st.text_input("Aap kya banna chahte hain?", placeholder="e.g., Video Creator, Cooking Expert...")
 
-user_goal = st.text_input("Aap kya banna chahte hain?", placeholder="e.g., Video Creator, Web Developer...")
+# GENERATE BUTTON
+generate_btn = st.button("Generate My Roadmap ✨")
 
-if user_goal:
-    with st.spinner(f"Surendra's AI '{user_goal}' ke liye roadmap bana raha hai..."):
+if generate_btn and user_goal:
+    with st.spinner(f"Surendra's AI aapka '{user_goal}' roadmap taiyar kar raha hai..."):
         try:
-            # AI Prompt
-            prompt = f"Create a professional 3-step roadmap for a beginner to become a {user_goal}. Use bullet points for skills in each step."
-            
+            # AI Prompt for structured response
+            prompt = f"Create a detailed 3-step roadmap to become a {user_goal}. For each step, give a title and a list of key topics to learn."
             response = model.generate_content(prompt)
+            roadmap_content = response.text
             
-            # Result Display
             st.markdown(f"### 📍 Roadmap for: **{user_goal}**")
             st.divider()
-            st.markdown(response.text)
             
-            st.balloons() # Celebration!
+            # Display Roadmap
+            st.markdown(roadmap_content)
+            
+            # Video Links Section
+            st.subheader("📺 Learning Resources (Video Links)")
+            search_query = user_goal.replace(" ", "+")
+            st.video(f"https://www.youtube.com/results?search_query={search_query}+tutorial")
+            st.info(f"👉 [Click here for more {user_goal} tutorials on YouTube](https://www.youtube.com/results?search_query={search_query}+course)")
+
+            # --- 5. DOWNLOAD PDF (TEXT FILE) BUTTON ---
+            st.divider()
+            download_text = f"SkillPath Roadmap for {user_goal}\nDeveloped by Surendra Yadav\n\n{roadmap_content}"
+            st.download_button(
+                label="Download Roadmap as PDF/Text 📄",
+                data=download_text,
+                file_name=f"{user_goal}_roadmap.txt",
+                mime="text/plain"
+            )
+            
+            st.balloons()
             
         except Exception as e:
-            st.error("🤖 AI response nahi de pa raha. Kripya apni API Key check karein ya thodi der baad try karein.")
+            st.error(f"AI Response Error: {e}")
+elif generate_btn and not user_goal:
+    st.warning("Kripya pehle apna goal likhein!")
 
 # Footer
+st.markdown("<br><br>", unsafe_allow_html=True)
 st.markdown("---")
-st.caption("© 2024 SkillPath | Developed by Surendra")
+st.caption("© 2026 SkillPath | Developed by Surendra Yadav")
