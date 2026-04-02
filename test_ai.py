@@ -1,50 +1,71 @@
 import streamlit as st
 import google.generativeai as genai
+from fpdf import FPDF # PDF ke liye nayi library
 
 # --- 1. PAGE CONFIG ---
 st.set_page_config(page_title="SkillPath AI - Surendra Yadav", page_icon="🚀")
 
 # --- 2. API SETUP ---
-if "MY_API_KEY" not in st.secrets:
-    st.error("API Key missing! Secrets mein add karein.")
+if "MY_API_KEY" in st.secrets:
+    genai.configure(api_key=st.secrets["MY_API_KEY"])
+    # Jo model aapne bataya wahi use kar rahe hain
+    model = genai.GenerativeModel('gemini-1.5-flash') 
+else:
+    st.error("Secrets mein API Key nahi mili!")
     st.stop()
 
-genai.configure(api_key=st.secrets["MY_API_KEY"])
+# PDF Banane ka Function
+def create_pdf(text, title):
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", 'B', 16)
+    pdf.cell(200, 10, txt=f"Roadmap for: {title}", ln=True, align='C')
+    pdf.ln(10)
+    pdf.set_font("Arial", size=12)
+    # Text ko clean karke PDF mein daalna
+    pdf.multi_cell(0, 10, txt=text.encode('latin-1', 'ignore').decode('latin-1'))
+    return pdf.output(dest='S').encode('latin-1')
 
 # --- 3. SIDEBAR ---
 with st.sidebar:
     st.title("🎯 SkillPath AI")
     st.success("Built by **Surendra Yadav**")
-    st.info("System: Model Auto-Detector")
+    if st.button("Reset App 🔄"):
+        st.rerun()
 
 # --- 4. MAIN UI ---
-st.title("🚀 SkillPath: Personalized Roadmap")
+st.title("🚀 SkillPath: AI Roadmap Generator")
 user_goal = st.text_input("Aap kya banna chahte hain?", placeholder="e.g., Video Creator")
 
 if st.button("Generate My Roadmap ✨"):
     if user_goal:
-        with st.spinner("AI Models check ho rahe hain..."):
+        with st.spinner(f"Surendra's AI roadmap taiyar kar raha hai..."):
             try:
-                # Sabse pehle "models/gemini-2.5-flash" try karein
-                model = genai.GenerativeModel("models/gemini-2.5-flash")
-                response = model.generate_content(f"Create a 3-step roadmap to become {user_goal}")
+                response = model.generate_content(f"Create a professional 3-step roadmap to become {user_goal}.")
+                roadmap_text = response.text
                 
                 st.markdown(f"### 📍 Roadmap for: {user_goal}")
-                st.markdown(response.text)
-                
-                # VIDEO LINK
                 st.divider()
-                q = user_goal.replace(" ", "+")
-                st.info(f"👉 [Watch {user_goal} Tutorials on YouTube](https://www.youtube.com/results?search_query={q}+course)")
-                st.balloons()
+                st.markdown(roadmap_text)
                 
+                # Learning Resources (Video Link)
+                st.subheader("📺 Learning Resources")
+                q = user_goal.replace(" ", "+")
+                st.info(f"👉 [Watch {user_goal} Tutorials on YouTube](https://www.youtube.com/results?search_query={q}+full+course)")
+                
+                # --- PDF DOWNLOAD BUTTON ---
+                pdf_data = create_pdf(roadmap_text, user_goal)
+                st.download_button(
+                    label="Download Roadmap as PDF 📄",
+                    data=pdf_data,
+                    file_name=f"{user_goal}_Roadmap.pdf",
+                    mime="application/pdf"
+                )
+                
+                st.balloons()
             except Exception as e:
-                # Agar 404 aaye, toh list dikhayega ki kaunsa model available hai
-                st.error("Naya Model Connect nahi hua. Available models ki list check karein:")
-                available_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
-                st.write(available_models)
-                st.info("Upar di gayi list mein se pehla model use karne ki koshish karein.")
+                st.error(f"Error: {e}")
     else:
-        st.warning("Pehle kuch likhiye!")
+        st.warning("Pehle apna goal likhein!")
 
 st.caption("© 2026 Developed by Surendra Yadav")
