@@ -9,7 +9,7 @@ st.set_page_config(page_title="SkillPath AI - Surendra Yadav", page_icon="🚀")
 if "MY_API_KEY" in st.secrets:
     genai.configure(api_key=st.secrets["MY_API_KEY"])
     # Jo model aapne bataya wahi use kar rahe hain
-    model = genai.GenerativeModel('gemini-1.5-flash') 
+    model = genai.GenerativeModel("models/gemini-2.5-flash") 
 else:
     st.error("Secrets mein API Key nahi mili!")
     st.stop()
