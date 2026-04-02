@@ -14,9 +14,11 @@ if "MY_API_KEY" not in st.secrets:
     st.stop()
 
 genai.configure(api_key=st.secrets["MY_API_KEY"])
-model = genai.GenerativeModel('gemini-pro')
 
-# --- 3. SIDEBAR (Updated Name) ---
+# YAHAN CHANGE KIYA HAI: 'gemini-1.5-flash' use kar rahe hain jo fast aur updated hai
+model = genai.GenerativeModel('gemini-1.5-flash')
+
+# --- 3. SIDEBAR ---
 with st.sidebar:
     st.title("🎯 SkillPath AI")
     st.markdown("---")
@@ -36,7 +38,7 @@ generate_btn = st.button("Generate My Roadmap ✨")
 if generate_btn and user_goal:
     with st.spinner(f"Surendra's AI aapka '{user_goal}' roadmap taiyar kar raha hai..."):
         try:
-            # AI Prompt for structured response
+            # AI Prompt
             prompt = f"Create a detailed 3-step roadmap to become a {user_goal}. For each step, give a title and a list of key topics to learn."
             response = model.generate_content(prompt)
             roadmap_content = response.text
@@ -47,17 +49,16 @@ if generate_btn and user_goal:
             # Display Roadmap
             st.markdown(roadmap_content)
             
-            # Video Links Section
-            st.subheader("📺 Learning Resources (Video Links)")
+            # YouTube Link
+            st.subheader("📺 Learning Resources")
             search_query = user_goal.replace(" ", "+")
-            st.video(f"https://www.youtube.com/results?search_query={search_query}+tutorial")
-            st.info(f"👉 [Click here for more {user_goal} tutorials on YouTube](https://www.youtube.com/results?search_query={search_query}+course)")
+            st.info(f"👉 [Surendra ki taraf se free course: Click here for {user_goal} tutorials on YouTube](https://www.youtube.com/results?search_query={search_query}+course)")
 
-            # --- 5. DOWNLOAD PDF (TEXT FILE) BUTTON ---
+            # --- 5. DOWNLOAD PDF/TEXT ---
             st.divider()
             download_text = f"SkillPath Roadmap for {user_goal}\nDeveloped by Surendra Yadav\n\n{roadmap_content}"
             st.download_button(
-                label="Download Roadmap as PDF/Text 📄",
+                label="Download Roadmap 📄",
                 data=download_text,
                 file_name=f"{user_goal}_roadmap.txt",
                 mime="text/plain"
