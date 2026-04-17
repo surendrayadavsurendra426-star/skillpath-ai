@@ -1,4 +1,10 @@
 import streamlit as st
+st.set_page_config(
+    page_title="SkillPath",
+    page_icon="🎯",
+    layout="centered",
+    initial_sidebar_state="collapsed"
+)
 import google.generativeai as genai
 from fpdf import FPDF
 
