@@ -1,4 +1,23 @@
 import streamlit as st
+
+# 1. Page Config (Emoji ke saath)
+st.set_page_config(
+    page_title="SkillPath",
+    page_icon="🎯", 
+    layout="centered"
+)
+
+# 2. Browser ko batane ke liye ki ye ek App hai (Custom CSS)
+st.markdown("""
+    <style>
+    /* Mobile par Streamlit ka menu aur header chhupane ke liye */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    </style>
+    """, unsafe_allow_html=True)
+
+# Iske niche aapka baki code...
 st.set_page_config(
     page_title="SkillPath",
     page_icon="🎯",
